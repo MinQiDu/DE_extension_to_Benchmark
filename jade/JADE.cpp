@@ -1,0 +1,292 @@
+#include "JADE.h"
+#include <ctime>
+#include <cstdlib>
+#include <algorithm> /* for auto */
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <cmath>     /* for sqrt */
+#include <numeric>   /* for accumulate */
+
+/* Constructor 初始化亂數引擎 */
+algo_JADE::algo_JADE()
+	: gen(rd()) /* 用 rd 初始化 gen（記住這只能放在初始化列表中） */
+{
+}
+
+void algo_JADE::RunALG(int _iter, int _dim, int _pop_size, double _mCR, double _mF, double _c, double _p, int _func_id, bool _a_func)
+{
+	int run = 50; // 設定運行次數
+	vector<double> best_fit_record; // 用於記錄每次運行的最佳 fitness
+	best_fit_record.reserve(run);
+
+	for (int r = 0; r < run; ++r)
+	{
+		iter = _iter;
+		dim = _dim;
+		pop_size = _pop_size;
+		mCR = _mCR;
+		mF = _mF;
+		c = _c;
+		p = _p;
+		func_id = _func_id;
+		a_func = _a_func;
+
+		Init(); // 初始化群體解
+
+		nfes = 0; // 初始化評估次數
+		mnfes = iter * pop_size; // 最大評估次數
+
+		while (nfes < mnfes) {
+			Mutation(); // 產生donor解
+			Crossover(); // 交叉生成current解
+			Evaluation(); // 計算current解的fitness
+			Determination(); // 更新下一代解
+			ParaAdaptation(); // 更新mCR & mF
+		}
+		best_fit_record.push_back(best_fit); // 記錄此運行的最佳 fitness
+		/*cout << "best fitness in run " << (r + 1) << ": " << best_fit << endl;
+		cout << "best solution found in run " << (r + 1) << ": ";
+		for (const auto& val : best_sol) {
+			cout << val << " ";
+		}
+		cout << endl;*/
+	}
+
+	// 輸出結果
+	double avg_best_fit = accumulate(best_fit_record.begin(), best_fit_record.end(), 0.0) / run;
+	cout << "Avg Best fitness: " << avg_best_fit << endl;
+
+	ofstream output_file("JADE_fitness_func" + to_string(func_id) + "_iter" + to_string(iter) + "_dim" + to_string(dim) + "_archive_" + (a_func ? "true" : "false") + ".txt", ios::out);
+	if (!output_file) {
+		cerr << "Error opening output file." << endl;
+		return;
+	}
+	output_file << "JADE | iter = " << iter << " | dim = " << dim << " | pop_size = " << pop_size
+		<< " | mCR = " << _mCR << " | mF = " << _mF << " | c = " << c << " | p = " << p
+		<< " | func_id = " << func_id << " | w/o archive list = " << (a_func ? "true" : "false") << endl;
+	output_file << "Avg Best fitness: " << avg_best_fit << endl;
+	for (int i = 0; i < run; ++i) {
+		output_file << " | Best fitness run " << (i + 1) << ": " << best_fit_record[i] << endl;
+	}
+	output_file.close();
+
+	ofstream integrated_output("JADE_integrated_fitness.txt", ios::app);
+	if (!integrated_output) {
+		cerr << "Error opening integrated output file." << endl;
+		return;
+	}
+	integrated_output << "JADE | iter = " << iter << " | dim = " << dim << " | pop_size = " << pop_size
+		<< " | mCR = " << _mCR << " | mF = " << mF << " | c = " << c << " | p = " << p
+		<< " | func_id = " << func_id << " | w/o archive list = " << (a_func ? "true" : "false") << endl;
+	integrated_output << "Avg Best fitness: " << avg_best_fit << endl;
+	integrated_output.close();
+}
+
+void algo_JADE::Init()
+{
+	// 初始化群體解
+	double lower_bound, upper_bound;
+	Benchmark benchmark(func_id);
+	benchmark.GetBounds(lower_bound, upper_bound);
+
+	uniform_real_distribution<double> dist_init(lower_bound, upper_bound); /* 使用從基準函數獲取的邊界 */
+
+	pop.clear();
+	current_pop.clear();
+	fit.clear();
+	current_fit.clear();
+	A.clear();   // A 存過去被淘汰的個體，初始為空
+	A.reserve(pop_size); // Reserve space for A
+
+	pop.assign(pop_size, vector<double>(dim)); // 初始化pop
+	current_pop.assign(pop_size, vector<double>(dim)); // 初始化current_pop
+	fit.assign(pop_size, 0.0); // 初始化 fit
+	current_fit.assign(pop_size, 0.0); // 初始化 current_fit
+
+	CR.assign(pop_size, mCR); // 初始化 CR
+	F.assign(pop_size, mF);   // 初始化 F
+
+	// 產生初始解pop
+	for (int i = 0; i < pop_size; ++i) {
+		for (int j = 0; j < dim; ++j) {
+			pop[i][j] = dist_init(gen);
+		}
+	}
+	// 初始化donor_pop和current_pop
+	donor_pop = pop;
+	current_pop = pop;
+
+	// 計算初始解的fitness
+	for (int i = 0; i < pop_size; ++i) {
+		fit[i] = benchmark.Evaluate(pop[i]);
+		if (i == 0 || fit[i] < best_fit) {
+			// 更新最佳解
+			best_fit = fit[i];
+			best_sol = pop[i];
+		}
+	}
+}
+
+void algo_JADE::Mutation()
+{
+	// 產生donor解
+	donor_pop.clear();
+	donor_pop.resize(pop_size, vector<double>(dim));
+
+	normal_distribution<double> dist_CR(mCR, 0.1); /* 常態分布 for 生成個體的 CR */
+	cauchy_distribution<double> dist_F(mF, 0.1);   /* 柯西分布 for 生成個體的 F */
+
+	vector<vector<double>> pop_A = pop;                         /* 先複製pop */
+	pop_A.insert(pop_A.end(), A.begin(), A.end());              /* 再接上A */
+
+	for (int i = 0; i < pop_size; ++i)
+	{
+		/* 生成此代所有個體的 CR[i] & F[i] */
+		CR[i] = std::max(0.0, std::min(1.0, dist_CR(gen))); // truncate, 確保 CR[i] 在 [0, 1] 範圍內
+
+		do {
+			F[i] = dist_F(gen);
+		} while (F[i] <= 0.0 || F[i] > 1.0);       /* truncate */
+
+		/* 選出x_pbest, x_r1, x_r2 來產生 donor_pop */
+		/* x_pbest */
+		int p_num = p * pop_size;
+		if (p_num < 2) p_num = 2;                                   /* 確保至少有2個候選個體 */
+		vector<pair<double, int>> fit_idx(pop_size);                /* pair = { fitness, index } */
+		for (int i = 0; i < pop_size; ++i)                          /* 建立 fit_idx 以供排序列出個體 fitness 排名 */
+		{
+			fit_idx[i] = { fit[i], i };
+		}
+		sort(fit_idx.begin(), fit_idx.end());                       /* fitness 由小->大 */
+
+		int idx_pbest;
+		do {
+			uniform_int_distribution<int> dist_pbest(0, p_num - 1); /* 整數均勻分布 for 生成index */
+			idx_pbest = fit_idx[dist_pbest(gen)].second;            /* pbest 在 pop 中的 index */
+		} while (idx_pbest == i);                                   /* 確保idx_pbest跟當前個體i不同 */
+		vector<double> x_pbest = pop[idx_pbest];                    /* 得到 x_pbest */
+
+		/* x_r1 */
+		uniform_int_distribution<int> dist_r1(0, pop_size - 1);
+		int idx_r1;
+		do {
+			idx_r1 = dist_r1(gen);
+		} while (idx_r1 == i || idx_r1 == idx_pbest);
+		vector<double> x_r1 = pop[idx_r1];                          /* 得到 x_r1 */
+
+		/* x_r2 */
+		uniform_int_distribution<int> dist_r2(0, pop_size + A.size() - 1);
+		
+		int idx_r2;
+		do {
+			idx_r2 = dist_r2(gen);
+		} while (idx_r2 == i || idx_r2 == idx_pbest || idx_r2 == idx_r1);
+		vector<double> x_r2 = pop_A[idx_r2];                        /* 得到 x_r2 */
+
+		for (int j = 0; j < dim; ++j)                               /* 算出此個體的 donor 解 */
+		{
+			donor_pop[i][j] = pop[i][j] + F[i] * (x_pbest[j] - pop[i][j]) + F[i] * (x_r1[j] - x_r2[j]);
+		}
+	}
+}
+
+void algo_JADE::Crossover()
+{
+	// 交叉生成recent解
+	current_pop.clear();
+	current_pop.resize(pop_size, vector<double>(dim));
+
+	uniform_int_distribution<int> dist_idx(0, dim - 1);  // 整數均勻分布 for 隨機維度選擇
+	uniform_real_distribution<double> dist_CR(0.0, 1.0); // 均勻分布 for r
+	for (int i = 0; i < pop_size; ++i)
+	{
+		int j_rand = dist_idx(gen); // 隨機選擇一個維度進行確保至少有一個維度來自donor解
+		for (int j = 0; j < dim; ++j)
+		{
+			double r = dist_CR(gen); // 生成隨機數 r
+			if (j == j_rand || r < CR[i]) // 確保至少有一個維度來自donor解
+				current_pop[i][j] = donor_pop[i][j]; // 如果是隨機選中的維度或r小於CR[i]，則從donor解中取值
+			else
+				current_pop[i][j] = pop[i][j]; // 否則從原解中取值
+		}
+	}
+}
+
+void algo_JADE::Evaluation()
+{
+	// 計算current解的fitness
+	current_fit.clear();
+	current_fit.resize(pop_size, 0.0);
+	Benchmark benchmark(func_id);
+	for (int i = 0; i < pop_size; ++i)
+	{
+		current_fit[i] = benchmark.Evaluate(current_pop[i]);
+		nfes++;
+	}
+}
+
+void algo_JADE::Determination()
+{
+    sF.reserve(pop_size);
+    sCR.reserve(pop_size);
+	// 更新下一代解
+	for (int i = 0; i < pop_size; ++i)
+	{
+		if (current_fit[i] < fit[i]) // 如果current解的fitness更好
+		{
+			if (a_func)
+			{
+				A.push_back(pop[i]); // 將淘汰掉的原解加入A
+			}
+			pop[i] = current_pop[i]; // 更新pop[i]為current解
+			fit[i] = current_fit[i]; // 更新fitness
+			sF.push_back(F[i]);		 // 將成功更新的F加入sF
+			sCR.push_back(CR[i]);	 // 將成功更新的CR加入sCR
+			if (fit[i] < best_fit)   // 如果更新後的fitness更好，更新best_fit和best_sol
+			{
+				best_fit = fit[i];
+				best_sol = pop[i];
+			}
+		}
+	}
+	cout << "sF size: " << sF.size() << ", sCR size: " << sCR.size() << endl;
+}
+
+void algo_JADE::ParaAdaptation()
+{
+	/* maintain size of A <= pop_size */
+	while (A.size() > pop_size)
+	{
+		uniform_int_distribution<int> dist_idx(0, A.size() - 1);
+		int idx = dist_idx(gen);
+		A.erase(A.begin() + idx);
+	}
+
+	/* mCR & mF adaptation */
+	/* mCR */
+	double mean_sCR = mCR;
+    if (!sCR.empty()) {
+        double sum_sCR = 0.0;
+        for (double cr : sCR) sum_sCR += cr;
+        mean_sCR = sum_sCR / sCR.size();
+    }
+    mCR = (1 - c) * mCR + c * mean_sCR;
+
+    /* mF */
+    double mean_sF = mF;
+    if (!sF.empty()) {
+        double sum_sF2 = 0.0;
+        double sum_sF = 0.0;
+        for (double f : sF) {
+            sum_sF2 += f * f;
+            sum_sF += f;
+        }
+        if (sum_sF != 0.0)
+            mean_sF = sum_sF2 / sum_sF;
+    }
+    mF = (1 - c) * mF + c * mean_sF;       /* 得到新mF */
+
+	sCR.clear();
+	sF.clear();
+}
