@@ -8,14 +8,15 @@ class algo_JADE
 {
 public:
 	algo_JADE();       /* constructor 宣告 */
-	void RunALG(int iter, int dim, int pop_size, double mCR, double mF, double c, double p, int func_id, bool a_func);
+	void RunALG(int iter, int dim, int pop_size, double mCR, double mF, double c, double p, int func_id, bool archive_flag);
 private:
 	random_device rd;  /*宣告亂數引擎*/
 	mt19937 gen;
 
-	bool a_func; /* 是否使用 archive list A */
+	bool archive_flag; /* 是否使用 archive list A */
 	int func_id; /* benchmark function id */
 	int iter;    /* 總迭代次數 */
+	int iter_c;  /* 當前迭代次數 */
 	int dim;
 	int pop_size;
 	int mnfes;
@@ -39,8 +40,9 @@ private:
 	double best_fit;                    /* 紀錄最佳fitness */
 	vector<double> best_sol;            /* 紀錄最佳解 */
 
-	vector<double> fit_record;          /* 輸出收斂結果用 */
-	int r_count = 0;
+	double lower_bound, upper_bound;    /* 不同函數對應的上下界 */
+
+	vector<vector<double>> iter_fit_record;  /* 輸出每一 run fitness 收斂結果用 */
 
 	void Init();           /* 產生初始dim*pop_size個群體解 */
 	void Mutation();       /* 產生donor解 */

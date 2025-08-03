@@ -14,11 +14,12 @@ algo_JADE::algo_JADE()
 {
 }
 
-void algo_JADE::RunALG(int _iter, int _dim, int _pop_size, double _mCR, double _mF, double _c, double _p, int _func_id, bool _a_func)
+void algo_JADE::RunALG(int _iter, int _dim, int _pop_size, double _mCR, double _mF, double _c, double _p, int _func_id, bool _archive_flag)
 {
 	int run = 50; // 設定運行次數
 	vector<double> best_fit_record; // 用於記錄每次運行的最佳 fitness
 	best_fit_record.reserve(run);
+	iter_fit_record.resize(run);
 
 	for (int r = 0; r < run; ++r)
 	{
@@ -30,47 +31,56 @@ void algo_JADE::RunALG(int _iter, int _dim, int _pop_size, double _mCR, double _
 		c = _c;
 		p = _p;
 		func_id = _func_id;
-		a_func = _a_func;
+		archive_flag = _archive_flag;
 
 		Init(); // 初始化群體解
 
 		nfes = 0; // 初始化評估次數
 		mnfes = iter * pop_size; // 最大評估次數
 
-		while (nfes < mnfes) {
+		//iter_c = 0; // 初始化當前迭代次數
+		iter_fit_record[r].reserve(iter); // 為每次運行的 fitness 紀錄分配空間
+
+		while (nfes < mnfes) 
+		{
 			Mutation(); // 產生donor解
 			Crossover(); // 交叉生成current解
 			Evaluation(); // 計算current解的fitness
 			Determination(); // 更新下一代解
 			ParaAdaptation(); // 更新mCR & mF
+
+			iter_fit_record[r].push_back(best_fit); // 紀錄當前迭代的最佳 fitness
+			//iter_c++; // 增加當前迭代次數
 		}
-		best_fit_record.push_back(best_fit); // 記錄此運行的最佳 fitness
-		cout << "best fitness in run " << (r + 1) << ": " << best_fit << endl;
+		best_fit_record.push_back(best_fit); // 記錄所有 run 運行的最佳 fitness
+		/*cout << "best fitness in run " << (r + 1) << ": " << best_fit << endl;
 		cout << "best solution found in run " << (r + 1) << ": ";
 		for (const auto& val : best_sol) {
 			cout << val << " ";
 		}
-		cout << endl;
+		cout << endl;*/
 	}
 
 	// 輸出結果
 	double avg_best_fit = accumulate(best_fit_record.begin(), best_fit_record.end(), 0.0) / run;
 	cout << "Avg Best fitness: " << avg_best_fit << endl;
 
-	ofstream output_file("JADE_fitness_func" + to_string(func_id) + "_iter" + to_string(iter) + "_dim" + to_string(dim) + "_archive_" + (a_func ? "true" : "false") + ".txt", ios::out);
+	// 輸出每 run 運行的最佳 fitness 到 JADE_fitness_func_iter_dim_archive_.txt
+	ofstream output_file("JADE_fitness_func" + to_string(func_id) + "_iter" + to_string(iter) + "_dim" + to_string(dim) + "_archive_" + (archive_flag ? "true" : "false") + ".txt", ios::out);
 	if (!output_file) {
 		cerr << "Error opening output file." << endl;
 		return;
 	}
 	output_file << "JADE | func_id = " << func_id << " | iter = " << iter << " | dim = " << dim << " | pop_size = " << pop_size
 		<< " | mCR = " << _mCR << " | mF = " << _mF << " | c = " << c << " | p = " << p
-		<< " | w/o archive list = " << (a_func ? "true" : "false") << endl;
+		<< " | w/o archive list = " << (archive_flag ? "true" : "false") << endl;
 	output_file << "Avg Best fitness: " << avg_best_fit << endl;
 	for (int i = 0; i < run; ++i) {
 		output_file << " | Best fitness run " << (i + 1) << ": " << best_fit_record[i] << endl;
 	}
 	output_file.close();
 
+	// 輸出整合結果到 JADE_integrated_fitness.txt
 	ofstream integrated_output("JADE_integrated_fitness.txt", ios::app);
 	if (!integrated_output) {
 		cerr << "Error opening integrated output file." << endl;
@@ -78,17 +88,59 @@ void algo_JADE::RunALG(int _iter, int _dim, int _pop_size, double _mCR, double _
 	}
 	integrated_output << "JADE | func_id = " << func_id << "| iter = " << iter << " | dim = " << dim << " | pop_size = " << pop_size
 		<< " | mCR = " << _mCR << " | mF = " << mF << " | c = " << c << " | p = " << p
-		<< " | w/o archive list = " << (a_func ? "true" : "false") << endl;
+		<< " | w/o archive list = " << (archive_flag ? "true" : "false") << endl;
 	integrated_output << "Avg Best fitness: " << avg_best_fit << endl;
 	integrated_output.close();
+
+	/* 出圖 */
+	// 輸出每 run 運行的 fitness 到 JADE_fitness_cvg.txt
+	ofstream cvg_file("JADE_fitness_cvg" + to_string(func_id) + "_iter" + to_string(iter) + "_dim" + to_string(dim) + "_archive_" + (archive_flag ? "true" : "false") + ".txt");
+	if (!cvg_file) {
+		cerr << "Error opening fitness convergence file." << endl;
+		return;
+	}
+
+	// 先轉置輸出：每一列是 iteration，欄為每 run
+	for (int t = 0; t < iter; ++t) {
+		for (int r = 0; r < run; ++r) {
+			cvg_file << iter_fit_record[r][t];
+			if (r != run - 1) cvg_file << " ";
+		}
+		cvg_file << "\n";
+	}
+	cvg_file.close();
+
+	// 產生 plot_JADE.plt 畫出收斂圖
+	ofstream plot_file("plot_JADE_func" + to_string(func_id) + "_iter" + to_string(iter) + "_dim" + to_string(dim) + "_archive_" + (archive_flag ? "true" : "false") + ".plt");
+	if (!plot_file) {
+		cerr << "Error opening plot file." << endl;
+		return;
+	}
+	plot_file << "set terminal pngcairo size 1200,600 enhanced font 'Verdana,10'\n";
+	plot_file << "set output 'JADE_cvg_plot" << "_func" << func_id << "_iter" << iter << "_dim" << dim << "_archive_" << (archive_flag ? "true" : "false") << ".png'\n";
+	plot_file << "set title 'JADE Convergence Plot" << " (f" << func_id << ", iter" << iter << ", dim" << dim << ", archive: " << (archive_flag ? "true" : "false") << ")'\n";
+	plot_file << "set xlabel 'Iteration'\n";
+	plot_file << "set ylabel 'Best Fitness'\n";
+	plot_file << "set grid\n";
+	plot_file << "set label 'Avg best fitness: " << avg_best_fit << "' at graph 0.02, graph 0.95 font ',10' tc rgb 'black'\n";
+	plot_file << "set lmargin 10\n";
+	plot_file << "set tmargin 5\n";
+	plot_file << "plot ";
+	for (int i = 2; i <= run + 1; ++i) {
+		plot_file << "'JADE_fitness_cvg" << to_string(func_id) << "_iter" << to_string(iter) << "_dim" << to_string(dim) << "_archive_" << (archive_flag ? "true" : "false") << ".txt' using :" << i
+			<< " with lines title 'Run " << (i - 1) << "'";
+		if (i != run + 1) plot_file << ", ";
+	}
+	plot_file << "\n";
+	plot_file.close();
 }
 
 void algo_JADE::Init()
 {
 	// 初始化群體解
-	double lower_bound, upper_bound;
 	Benchmark benchmark(func_id);
 	benchmark.GetBounds(lower_bound, upper_bound);
+	//cout << "Lower bound: " << lower_bound << ", Upper bound: " << upper_bound << endl;
 
 	uniform_real_distribution<double> dist_init(lower_bound, upper_bound); /* 使用從基準函數獲取的邊界 */
 
@@ -111,6 +163,7 @@ void algo_JADE::Init()
 	for (int i = 0; i < pop_size; ++i) {
 		for (int j = 0; j < dim; ++j) {
 			pop[i][j] = dist_init(gen);
+			//cout << pop[i][j] << " "; // 印出初始解
 		}
 	}
 	// 初始化donor_pop和current_pop
@@ -143,7 +196,7 @@ void algo_JADE::Mutation()
 	for (int i = 0; i < pop_size; ++i)
 	{
 		/* 生成此代所有個體的 CR[i] & F[i] */
-		CR[i] = std::max(0.0, std::min(1.0, dist_CR(gen))); // truncate, 確保 CR[i] 在 [0, 1] 範圍內
+		CR[i] = max(0.0, min(1.0, dist_CR(gen))); // truncate, 確保 CR[i] 在 [0, 1] 範圍內
 
 		do {
 			F[i] = dist_F(gen);
@@ -188,6 +241,16 @@ void algo_JADE::Mutation()
 		for (int j = 0; j < dim; ++j)                               /* 算出此個體的 donor 解 */
 		{
 			donor_pop[i][j] = pop[i][j] + F[i] * (x_pbest[j] - pop[i][j]) + F[i] * (x_r1[j] - x_r2[j]);
+
+			// reflective boundary condition
+			if (donor_pop[i][j] < lower_bound) {
+				donor_pop[i][j] = lower_bound + (lower_bound - donor_pop[i][j]);
+				if (donor_pop[i][j] > upper_bound) donor_pop[i][j] = lower_bound;
+			}
+			if (donor_pop[i][j] > upper_bound) {
+				donor_pop[i][j] = upper_bound - (donor_pop[i][j] - upper_bound);
+				if (donor_pop[i][j] < lower_bound) donor_pop[i][j] = upper_bound;
+			}
 		}
 	}
 }
@@ -210,6 +273,21 @@ void algo_JADE::Crossover()
 				current_pop[i][j] = donor_pop[i][j]; // 如果是隨機選中的維度或r小於CR[i]，則從donor解中取值
 			else
 				current_pop[i][j] = pop[i][j]; // 否則從原解中取值
+
+			// reflective boundary condition
+			if (current_pop[i][j] < lower_bound) {
+				current_pop[i][j] = lower_bound + (lower_bound - current_pop[i][j]);
+				if (current_pop[i][j] > upper_bound) current_pop[i][j] = lower_bound;
+			}
+			else if (current_pop[i][j] > upper_bound) {
+				current_pop[i][j] = upper_bound - (current_pop[i][j] - upper_bound);
+				if (current_pop[i][j] < lower_bound) current_pop[i][j] = upper_bound;
+			}
+
+			// jitter
+			if (fabs(donor_pop[i][j] - lower_bound) < 1e-8 || fabs(donor_pop[i][j] - upper_bound) < 1e-8) {
+				donor_pop[i][j] += (upper_bound - lower_bound) * 0.01 * (2.0 * dist_CR(gen) - 1.0); // small random step
+			}
 		}
 	}
 }
@@ -236,7 +314,7 @@ void algo_JADE::Determination()
 	{
 		if (current_fit[i] < fit[i]) // 如果current解的fitness更好
 		{
-			if (a_func)
+			if (archive_flag)
 			{
 				A.push_back(pop[i]); // 將淘汰掉的原解加入A
 			}

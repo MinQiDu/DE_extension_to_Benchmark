@@ -18,15 +18,15 @@ int main(int argc, char* argv[])
 		return 1; // 結束程式
 	}
 
-	bool a_func; 				// 是否使用 archive list A
+	bool archive_flag; 				// 是否使用 archive list A
 	string a = argv[9];			// 是否使用 archive list A
 	if (a == "0")
 	{
-		a_func = false;			// 不使用 archive list A
+		archive_flag = false;			// 不使用 archive list A
 	}
 	else if (a == "1")
 	{
-		a_func = true;			// 使用 archive list A
+		archive_flag = true;			// 使用 archive list A
 	}
 	else
 	{
@@ -40,11 +40,11 @@ int main(int argc, char* argv[])
 	while (canrun == 0)
 	{
 		cout << "algo_type = " << "JADE" << " | func_id = " << func_id << " | iter = " << iter << " | dim = " << dim << " | pop_size = " << pop_size <<
-			" | mCR = " << mCR << " | mF = " << mF << " | c = " << c << " | p = " << p << " | w/o archive list = " << (a_func ? "true" : "false") << endl;
+			" | mCR = " << mCR << " | mF = " << mF << " | c = " << c << " | p = " << p << " | w/o archive list = " << (archive_flag ? "true" : "false") << endl;
 		canrun = 1;
 
 		algo_JADE algo;
-		algo.RunALG(iter, dim, pop_size, mCR, mF, c, p, func_id, a_func);
+		algo.RunALG(iter, dim, pop_size, mCR, mF, c, p, func_id, archive_flag);
 	}
 
 }

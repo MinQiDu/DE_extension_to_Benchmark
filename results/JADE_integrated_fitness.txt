@@ -1,0 +1,84 @@
+JADE | func_id = 1| iter = 1500 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.510689 | c = 0.1 | p = 0.05 | w/o archive list = false
+Avg Best fitness: 5.1961e-70
+JADE | func_id = 2| iter = 2000 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.488735 | c = 0.1 | p = 0.05 | w/o archive list = false
+Avg Best fitness: 3.70098e-44
+JADE | func_id = 3| iter = 5000 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.613408 | c = 0.1 | p = 0.05 | w/o archive list = false
+Avg Best fitness: 7.94181e-56
+JADE | func_id = 4| iter = 5000 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.58518 | c = 0.1 | p = 0.05 | w/o archive list = false
+Avg Best fitness: 4.4287e-14
+JADE | func_id = 5| iter = 3000 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.591027 | c = 0.1 | p = 0.05 | w/o archive list = false
+Avg Best fitness: 0.0797325
+JADE | func_id = 5| iter = 20000 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.578153 | c = 0.1 | p = 0.05 | w/o archive list = false
+Avg Best fitness: 0.239197
+JADE | func_id = 6| iter = 100 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.483177 | c = 0.1 | p = 0.05 | w/o archive list = false
+Avg Best fitness: 0.42
+JADE | func_id = 6| iter = 1500 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.501489 | c = 0.1 | p = 0.05 | w/o archive list = false
+Avg Best fitness: 0
+JADE | func_id = 7| iter = 3000 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.325394 | c = 0.1 | p = 0.05 | w/o archive list = false
+Avg Best fitness: 0.000610077
+JADE | func_id = 8| iter = 1000 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.751147 | c = 0.1 | p = 0.2 | w/o archive list = false
+Avg Best fitness: 0.0598933
+JADE | func_id = 8| iter = 9000 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.638474 | c = 0.1 | p = 0.2 | w/o archive list = false
+Avg Best fitness: -3.63798e-12
+JADE | func_id = 9| iter = 1000 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.868646 | c = 0.1 | p = 0.05 | w/o archive list = false
+Avg Best fitness: 0.215558
+JADE | func_id = 9| iter = 5000 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.629139 | c = 0.1 | p = 0.05 | w/o archive list = false
+Avg Best fitness: 0
+JADE | func_id = 10| iter = 500 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.496395 | c = 0.1 | p = 0.05 | w/o archive list = false
+Avg Best fitness: 2.51355e-11
+JADE | func_id = 10| iter = 2000 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.510185 | c = 0.1 | p = 0.05 | w/o archive list = false
+Avg Best fitness: 3.9968e-15
+JADE | func_id = 11| iter = 500 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.546326 | c = 0.1 | p = 0.05 | w/o archive list = false
+Avg Best fitness: 0.000147969
+JADE | func_id = 11| iter = 3000 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.511273 | c = 0.1 | p = 0.05 | w/o archive list = false
+Avg Best fitness: 0
+JADE | func_id = 12| iter = 500 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.503955 | c = 0.1 | p = 0.05 | w/o archive list = false
+Avg Best fitness: 1.43003e-18
+JADE | func_id = 12| iter = 1500 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.526448 | c = 0.1 | p = 0.05 | w/o archive list = false
+Avg Best fitness: 1.57054e-32
+JADE | func_id = 13| iter = 500 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.525462 | c = 0.1 | p = 0.05 | w/o archive list = false
+Avg Best fitness: 1.8666e-17
+JADE | func_id = 13| iter = 1500 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.498304 | c = 0.1 | p = 0.05 | w/o archive list = false
+Avg Best fitness: 1.34978e-32
+JADE | func_id = 1| iter = 1500 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.486173 | c = 0.1 | p = 0.05 | w/o archive list = true
+Avg Best fitness: 1.52721e-66
+JADE | func_id = 2| iter = 2000 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.480102 | c = 0.1 | p = 0.05 | w/o archive list = true
+Avg Best fitness: 6.222e-40
+JADE | func_id = 3| iter = 5000 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.575344 | c = 0.1 | p = 0.05 | w/o archive list = true
+Avg Best fitness: 1.01774e-86
+JADE | func_id = 4| iter = 5000 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.532921 | c = 0.1 | p = 0.05 | w/o archive list = true
+Avg Best fitness: 4.50919e-65
+JADE | func_id = 5| iter = 3000 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.529297 | c = 0.1 | p = 0.05 | w/o archive list = true
+Avg Best fitness: 0.31893
+JADE | func_id = 5| iter = 20000 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.543834 | c = 0.1 | p = 0.05 | w/o archive list = true
+Avg Best fitness: 0.0797325
+JADE | func_id = 6| iter = 100 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.473229 | c = 0.1 | p = 0.05 | w/o archive list = true
+Avg Best fitness: 1.6
+JADE | func_id = 6| iter = 1500 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.548571 | c = 0.1 | p = 0.05 | w/o archive list = true
+Avg Best fitness: 0
+JADE | func_id = 7| iter = 3000 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.418292 | c = 0.1 | p = 0.05 | w/o archive list = true
+Avg Best fitness: 0.000515656
+JADE | func_id = 8| iter = 1000 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.799348 | c = 0.1 | p = 0.2 | w/o archive list = true
+Avg Best fitness: 0.0265387
+JADE | func_id = 8| iter = 9000 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.660254 | c = 0.1 | p = 0.2 | w/o archive list = true
+Avg Best fitness: -3.63798e-12
+JADE | func_id = 9| iter = 1000 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.908089 | c = 0.1 | p = 0.05 | w/o archive list = true
+Avg Best fitness: 0.220845
+JADE | func_id = 9| iter = 5000 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.599993 | c = 0.1 | p = 0.05 | w/o archive list = true
+Avg Best fitness: 0
+JADE | func_id = 10| iter = 500 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.465333 | c = 0.1 | p = 0.05 | w/o archive list = true
+Avg Best fitness: 1.01037e-10
+JADE | func_id = 10| iter = 2000 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.461933 | c = 0.1 | p = 0.05 | w/o archive list = true
+Avg Best fitness: 3.9968e-15
+JADE | func_id = 11| iter = 500 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.497503 | c = 0.1 | p = 0.05 | w/o archive list = true
+Avg Best fitness: 0.000147995
+JADE | func_id = 11| iter = 3000 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.498889 | c = 0.1 | p = 0.05 | w/o archive list = true
+Avg Best fitness: 0
+JADE | func_id = 12| iter = 500 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.476934 | c = 0.1 | p = 0.05 | w/o archive list = true
+Avg Best fitness: 9.72584e-18
+JADE | func_id = 12| iter = 1500 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.47541 | c = 0.1 | p = 0.05 | w/o archive list = true
+Avg Best fitness: 1.57054e-32
+JADE | func_id = 13| iter = 500 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.498094 | c = 0.1 | p = 0.05 | w/o archive list = true
+Avg Best fitness: 2.13449e-16
+JADE | func_id = 13| iter = 1500 | dim = 30 | pop_size = 100 | mCR = 0.5 | mF = 0.505498 | c = 0.1 | p = 0.05 | w/o archive list = true
+Avg Best fitness: 1.34978e-32
