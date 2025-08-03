@@ -185,7 +185,7 @@ double Benchmark::Evaluate(const vector<double>& x) const // Evaluate the benchm
     }
 }
 
-void Benchmark::GetBounds(double& lower_bound, double& upper_bound) const
+void Benchmark::GetBounds(double& lower_bound, double& upper_bound) const // Get the bounds for the benchmark function based on the function ID
 {
     switch (func_id)
     {
