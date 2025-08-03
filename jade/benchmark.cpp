@@ -43,10 +43,15 @@ double Benchmark::Evaluate(const vector<double>& x) const // Evaluate the benchm
         }
         return sum;
 
-    case 4: // Step
-        return abs(*max_element(x.begin(), x.end(), [](double a, double b) {
-            return abs(a) < abs(b);
-            }));
+    case 4: // Step (max_i |x_i|)
+    {
+        double max_abs = 0.0;
+        for (const double xi : x) {
+            double abs_xi = std::abs(xi);
+            if (abs_xi > max_abs) max_abs = abs_xi;
+        }
+        return max_abs;
+    }
 
     case 5: // Rosenbrock
         for (int i = 0; i < D - 1; ++i)
@@ -75,11 +80,11 @@ double Benchmark::Evaluate(const vector<double>& x) const // Evaluate the benchm
         return sum;
     }
 
-
     case 8: // Schwefel 2.26
+        sum = 0.0;
         for (int i = 0; i < D; ++i)
-            sum += -x[i] * sin(sqrt(abs(x[i])));
-        return sum + 418.98288727243369 * D;
+            sum += x[i] * sin(sqrt(fabs(x[i])));
+        return 418.98288727243369 * D - sum; //418.98288727243369
 
     case 9: // Rastrigin
         for (const double xi : x)

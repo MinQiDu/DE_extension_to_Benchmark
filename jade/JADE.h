@@ -29,6 +29,7 @@ private:
 
 	vector<double> sCR;                 /* 存此代中成功更新的個體的CR */
 	vector<double> sF;                  /* 存此代中成功更新的個體的F */
+	vector<double> delta_fit; 		    /* 存此代中成功更新的個體的 fitness 差值 */
 	vector<vector<double>> A;           /* 存歷代中被淘汰掉的原解，size = pop_size */
 	vector<vector<double>> pop;         /* dim*pop_size 個群體解 */
 	vector<vector<double>> donor_pop;   /* 變異後的 donor 解 */
@@ -48,6 +49,7 @@ private:
 	void Determination();  /* update誰(原解 or recent解)可成為下一代解
 						   ，update best_fit */
 	void ParaAdaptation(); /* 更新 mCR & mF */
+	
 };
 
 #endif

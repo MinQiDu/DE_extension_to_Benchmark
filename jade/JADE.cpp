@@ -45,12 +45,12 @@ void algo_JADE::RunALG(int _iter, int _dim, int _pop_size, double _mCR, double _
 			ParaAdaptation(); // 更新mCR & mF
 		}
 		best_fit_record.push_back(best_fit); // 記錄此運行的最佳 fitness
-		/*cout << "best fitness in run " << (r + 1) << ": " << best_fit << endl;
+		cout << "best fitness in run " << (r + 1) << ": " << best_fit << endl;
 		cout << "best solution found in run " << (r + 1) << ": ";
 		for (const auto& val : best_sol) {
 			cout << val << " ";
 		}
-		cout << endl;*/
+		cout << endl;
 	}
 
 	// 輸出結果
@@ -62,9 +62,9 @@ void algo_JADE::RunALG(int _iter, int _dim, int _pop_size, double _mCR, double _
 		cerr << "Error opening output file." << endl;
 		return;
 	}
-	output_file << "JADE | iter = " << iter << " | dim = " << dim << " | pop_size = " << pop_size
+	output_file << "JADE | func_id = " << func_id << " | iter = " << iter << " | dim = " << dim << " | pop_size = " << pop_size
 		<< " | mCR = " << _mCR << " | mF = " << _mF << " | c = " << c << " | p = " << p
-		<< " | func_id = " << func_id << " | w/o archive list = " << (a_func ? "true" : "false") << endl;
+		<< " | w/o archive list = " << (a_func ? "true" : "false") << endl;
 	output_file << "Avg Best fitness: " << avg_best_fit << endl;
 	for (int i = 0; i < run; ++i) {
 		output_file << " | Best fitness run " << (i + 1) << ": " << best_fit_record[i] << endl;
@@ -76,9 +76,9 @@ void algo_JADE::RunALG(int _iter, int _dim, int _pop_size, double _mCR, double _
 		cerr << "Error opening integrated output file." << endl;
 		return;
 	}
-	integrated_output << "JADE | iter = " << iter << " | dim = " << dim << " | pop_size = " << pop_size
+	integrated_output << "JADE | func_id = " << func_id << "| iter = " << iter << " | dim = " << dim << " | pop_size = " << pop_size
 		<< " | mCR = " << _mCR << " | mF = " << mF << " | c = " << c << " | p = " << p
-		<< " | func_id = " << func_id << " | w/o archive list = " << (a_func ? "true" : "false") << endl;
+		<< " | w/o archive list = " << (a_func ? "true" : "false") << endl;
 	integrated_output << "Avg Best fitness: " << avg_best_fit << endl;
 	integrated_output.close();
 }
@@ -148,6 +148,7 @@ void algo_JADE::Mutation()
 		do {
 			F[i] = dist_F(gen);
 		} while (F[i] <= 0.0 || F[i] > 1.0);       /* truncate */
+		//F[i] = max(F[i], 0.1); // Clamp F to at least 0.1
 
 		/* 選出x_pbest, x_r1, x_r2 來產生 donor_pop */
 		/* x_pbest */
@@ -240,6 +241,10 @@ void algo_JADE::Determination()
 				A.push_back(pop[i]); // 將淘汰掉的原解加入A
 			}
 			pop[i] = current_pop[i]; // 更新pop[i]為current解
+
+			// Record fitness improvement for weighting
+			delta_fit.push_back(fit[i] - current_fit[i]); // positive value
+
 			fit[i] = current_fit[i]; // 更新fitness
 			sF.push_back(F[i]);		 // 將成功更新的F加入sF
 			sCR.push_back(CR[i]);	 // 將成功更新的CR加入sCR
@@ -250,22 +255,31 @@ void algo_JADE::Determination()
 			}
 		}
 	}
-	cout << "sF size: " << sF.size() << ", sCR size: " << sCR.size() << endl;
+	//cout << "sF size: " << sF.size() << ", sCR size: " << sCR.size() << endl;
+
+	// Elitism: 保留最好的解
+	// If the worst fitness in the population is better than the best fitness ever found,
+	// replace the corresponding individual with the best solution found.
+	/*auto worst_it = std::max_element(fit.begin(), fit.end());
+	if (worst_it != fit.end() && best_fit < *worst_it) {
+		int idx = std::distance(fit.begin(), worst_it);
+		pop[idx] = best_sol;
+		fit[idx] = best_fit;
+	}*/
 }
 
 void algo_JADE::ParaAdaptation()
 {
-	/* maintain size of A <= pop_size */
-	while (A.size() > pop_size)
-	{
-		uniform_int_distribution<int> dist_idx(0, A.size() - 1);
-		int idx = dist_idx(gen);
-		A.erase(A.begin() + idx);
-	}
+    // Maintain size of A <= pop_size
+    while (A.size() > pop_size)
+    {
+        uniform_int_distribution<int> dist_idx(0, A.size() - 1);
+        int idx = dist_idx(gen);
+        A.erase(A.begin() + idx);
+    }
 
-	/* mCR & mF adaptation */
-	/* mCR */
-	double mean_sCR = mCR;
+    // mCR adaptation (arithmetic mean)
+    double mean_sCR = mCR;
     if (!sCR.empty()) {
         double sum_sCR = 0.0;
         for (double cr : sCR) sum_sCR += cr;
@@ -273,20 +287,28 @@ void algo_JADE::ParaAdaptation()
     }
     mCR = (1 - c) * mCR + c * mean_sCR;
 
-    /* mF */
+    // mF adaptation (weighted Lehmer mean)
     double mean_sF = mF;
-    if (!sF.empty()) {
-        double sum_sF2 = 0.0;
-        double sum_sF = 0.0;
-        for (double f : sF) {
-            sum_sF2 += f * f;
-            sum_sF += f;
+    if (!sF.empty() && !delta_fit.empty()) {
+        double numerator = 0.0;
+        double denominator = 0.0;
+        for (size_t i = 0; i < sF.size(); ++i) {
+            if (sF[i] > 0.0) { // filter out non-positive F
+                numerator += delta_fit[i] * sF[i] * sF[i];
+                denominator += delta_fit[i] * sF[i];
+            }
         }
-        if (sum_sF != 0.0)
-            mean_sF = sum_sF2 / sum_sF;
+        if (denominator > 1e-12) // avoid division by zero
+            mean_sF = numerator / denominator;
     }
-    mF = (1 - c) * mF + c * mean_sF;       /* 得到新mF */
+    mF = (1 - c) * mF + c * mean_sF;
 
-	sCR.clear();
-	sF.clear();
+    sCR.clear();
+    sF.clear();
+    delta_fit.clear();
+	// Update ParaAdaptation strategy:
+	// Weighted Lehmer Mean: mean_sF now uses fitness improvement (delta_fit) as weights, as per the JADE paper.
+	// Filter F : Only positive F values are used.
+	// Numerical Stability : Added a small epsilon to avoid division by zero.
+	// delta_fit : You need to record the fitness improvement for each successful individual in Determination :
 }

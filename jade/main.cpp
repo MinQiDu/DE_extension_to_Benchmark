@@ -39,8 +39,8 @@ int main(int argc, char* argv[])
 
 	while (canrun == 0)
 	{
-		cout << "algo_type = " << "JADE " << "| iter = " << iter << " | dim = " << dim << " | pop_size = " << pop_size << 
-			" | mCR = " << mCR << " | mF = " << mF << " | c = " << c << " | p = " << p << " | func_id = " << func_id << " | w/o archive list = " << (a_func ? "true" : "false") << endl;
+		cout << "algo_type = " << "JADE" << " | func_id = " << func_id << " | iter = " << iter << " | dim = " << dim << " | pop_size = " << pop_size <<
+			" | mCR = " << mCR << " | mF = " << mF << " | c = " << c << " | p = " << p << " | w/o archive list = " << (a_func ? "true" : "false") << endl;
 		canrun = 1;
 
 		algo_JADE algo;
