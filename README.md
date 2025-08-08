@@ -143,9 +143,9 @@ DE_extension_Benchmark/
 <img src="docs/benchmark.png" width="50%"/>
 
 ### **JADE (without archive), 50 runs per function:**
-![](results/JADE/jade_terminalshot_dim30_archive_false.png)
+![](results/JADE/JADE_terminalshot_dim30_archive_false.png)
 ### **JADE (with archive), 50 runs per function:**
-![](results/JADE/jade_terminalshot_dim30_archive_true.png)
+![](results/JADE/JADE_terminalshot_dim30_archive_true.png)
 ### **Convergence Plot**
 <p align="center">
   <img src="results/JADE/.png/JADE_cvg_plot_func1_iter1500_dim30_archive_false.png" width="49%"/>
@@ -174,6 +174,9 @@ DE_extension_Benchmark/
 <p align="center">
   <img src="results/JADE/.png/JADE_cvg_plot_func13_iter1500_dim30_archive_false.png" width="49%"/>
 </p>
+
+### **SHADE (with archive), 50 runs per function:**
+![](results/SHADE/SHADE_terminalshot_dim30_archive_true.png)
 
 ---
 
