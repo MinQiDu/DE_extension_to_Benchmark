@@ -117,6 +117,7 @@ DE_extension_Benchmark/
 ├── JADE.cpp / JADE.h
 ├── SHADE.cpp / SHADE.h
 ├── Benchmark.cpp / Benchmark.h
+├── JADE_fileoutput.h / SHADE_fileoutput.h
 ├── results/ ← output files (.txt, .png)
 │   ├── JADE
 │   │  ├── JADE_integrated_fitness.txt
