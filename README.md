@@ -91,7 +91,8 @@ Ctrl + Shift + B in VisualStudio
 
 
 ```bash
-./JADE 100 30 100 0.5 0.5 0.1 0.1 6 0 (jade / shade)
+./JADE 100 30 100 0.5 0.5 0.1 0.1 6 0 jade
+./JADE 100 30 100 0.5 0.5 0.1 0.1 6 0 shade
 ```
 
 > Run JADE for function f6, 100 iterations, dim=30, no archive.   
