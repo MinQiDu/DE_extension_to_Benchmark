@@ -132,6 +132,7 @@
     <ClCompile Include="benchmark.cpp" />
     <ClCompile Include="JADE.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="plotter.cpp" />
     <ClCompile Include="SHADE.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
