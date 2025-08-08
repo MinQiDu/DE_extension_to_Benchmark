@@ -24,6 +24,12 @@
     <ClInclude Include="SHADE.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SHADE_fileoutput.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="JADE_fileoutput.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="benchmark.cpp">

@@ -125,6 +125,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="benchmark.h" />
+    <ClInclude Include="JADE_fileoutput.h" />
+    <ClInclude Include="SHADE_fileoutput.h" />
     <ClInclude Include="JADE.h" />
     <ClInclude Include="SHADE.h" />
   </ItemGroup>
