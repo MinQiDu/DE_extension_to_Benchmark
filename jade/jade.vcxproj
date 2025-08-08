@@ -24,6 +24,7 @@
     <ProjectGuid>{5c4a3277-77ca-4e59-9d72-a664b6235002}</ProjectGuid>
     <RootNamespace>jade</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>jade</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -125,11 +126,13 @@
   <ItemGroup>
     <ClInclude Include="benchmark.h" />
     <ClInclude Include="JADE.h" />
+    <ClInclude Include="SHADE.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="benchmark.cpp" />
     <ClCompile Include="JADE.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="SHADE.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
